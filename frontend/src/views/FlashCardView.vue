@@ -24,10 +24,22 @@
       <div class="flashcard" :class="{ flipped: vocabStore.isFlipped }" @click="handleFlip">
         <div class="card-front">
           <p class="card-text">{{ questionText }}</p>
+          <div class="card-audio" @click.stop>
+            <VocabAudio
+              :vocabId="vocabStore.currentCard"
+              :lang="questionLang"
+            />
+          </div>
           <p class="tap-hint">{{ ui.tapToFlip }}</p>
         </div>
         <div class="card-back">
           <p class="card-text">{{ answerText }}</p>
+          <div class="card-audio" @click.stop>
+            <VocabAudio
+              :vocabId="vocabStore.currentCard"
+              :lang="answerLang"
+            />
+          </div>
           <p v-if="intermediateText" class="card-intermediate">{{ intermediateText }}</p>
         </div>
       </div>
@@ -60,6 +72,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/userStore'
 import { useVocabStore } from '../stores/vocabStore'
 import { initSessionManager } from '../services/sessionManager'
+import VocabAudio from '../components/VocabAudio.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -110,6 +123,10 @@ const intermediateText = computed(() => {
   if (!vocab) return ''
   return vocab.DZ
 })
+
+// Language codes for audio files: "d" = German, "i" = Indonesian
+const questionLang = computed(() => isGermanLearner.value ? 'i' : 'd')
+const answerLang = computed(() => isGermanLearner.value ? 'd' : 'i')
 
 const stats = computed(() => vocabStore.getStats())
 
@@ -259,6 +276,10 @@ onUnmounted(() => {
   text-align: center;
   line-height: 1.4;
   margin: 0;
+}
+
+.card-audio {
+  margin-top: 12px;
 }
 
 .card-intermediate {
