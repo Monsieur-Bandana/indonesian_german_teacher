@@ -50,6 +50,7 @@
 <script setup>
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import api from '../services/apiService'
+import { getCachedAudio, refreshCachedAudio } from '../services/audioCache'
 import { useUserStore } from '../stores/userStore'
 
 const props = defineProps({
@@ -98,29 +99,27 @@ const ui = computed(() => {
   }
 })
 
-async function checkAudio() {
-  try {
-    const res = await api.get(`/api/audio/check/${props.vocabId}/${props.lang}`)
-    hasAudio.value = res.data.exists
-  } catch {
-    hasAudio.value = false
-  }
+function checkAudioFromCache() {
+  const cached = getCachedAudio(props.vocabId, props.lang)
+  hasAudio.value = cached ? cached.exists : false
   justUploaded.value = false
   showReRecord.value = false
 }
 
-async function playAudio() {
+function playAudio() {
   if (isPlaying.value) return
   isPlaying.value = true
-  try {
-    const url = `${api.defaults.baseURL}/api/audio/${props.vocabId}/${props.lang}`
-    audioElement = new Audio(url)
-    audioElement.onended = () => { isPlaying.value = false }
-    audioElement.onerror = () => { isPlaying.value = false }
-    await audioElement.play()
-  } catch {
+
+  const cached = getCachedAudio(props.vocabId, props.lang)
+  if (!cached || !cached.blobUrl) {
     isPlaying.value = false
+    return
   }
+
+  audioElement = new Audio(cached.blobUrl)
+  audioElement.onended = () => { isPlaying.value = false }
+  audioElement.onerror = () => { isPlaying.value = false }
+  audioElement.play().catch(() => { isPlaying.value = false })
 }
 
 async function startRecording() {
@@ -145,7 +144,6 @@ async function startRecording() {
     isRecording.value = true
     showReRecord.value = false
 
-    // Start wave animation after DOM updates
     requestAnimationFrame(() => {
       startWaveAnimation()
     })
@@ -169,6 +167,8 @@ async function uploadAudio(blob) {
     await api.post(`/api/audio/${props.vocabId}/${props.lang}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
+    // Refresh the cache with the newly uploaded audio
+    await refreshCachedAudio(props.vocabId, props.lang)
     hasAudio.value = true
     justUploaded.value = true
     setTimeout(() => { justUploaded.value = false }, 3000)
@@ -213,9 +213,9 @@ function stopWaveAnimation() {
   }
 }
 
-// Re-check audio when vocabId or lang changes
+// Read from cache when vocabId or lang changes
 watch(() => [props.vocabId, props.lang], () => {
-  checkAudio()
+  checkAudioFromCache()
   stopRecording()
   stopWaveAnimation()
   if (audioElement) {

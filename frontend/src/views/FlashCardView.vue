@@ -1,25 +1,44 @@
 <template>
   <div class="learn-container">
     <header class="learn-header">
-      <div class="stats">
-        <span>{{ stats.learned }}/{{ stats.total }}</span>
-        <span v-if="stats.mastered > 0" class="mastered">{{ stats.mastered }} gemeistert</span>
+      <div class="stats-row">
+        <div class="stat-item">
+          <span class="stat-label">{{ ui.today }}</span>
+          <span class="stat-value today-value">{{ stats.learnedToday }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">{{ ui.batchNew }}</span>
+          <span class="stat-value batch-value">{{ stats.batchNew }}/{{ stats.batchTotal }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">{{ ui.total }}</span>
+          <span class="stat-value">{{ stats.totalLearned }}/{{ stats.totalVocabs }}</span>
+        </div>
       </div>
       <button class="btn-logout" @click="handleLogout">
         {{ ui.logout }}
       </button>
     </header>
 
-    <div v-if="!vocabStore.sessionLoaded" class="loading">
-      {{ ui.loading }}
+    <!-- Loading: session or audio preloading -->
+    <div v-if="!vocabStore.sessionLoaded || !vocabStore.audioPreloaded" class="loading">
+      <div class="loading-spinner"></div>
+      <p>{{ !vocabStore.sessionLoaded ? ui.loading : ui.loadingAudio }}</p>
     </div>
 
+    <!-- Batch complete -->
     <div v-else-if="!vocabStore.currentVocab" class="done-message">
-      <h2>{{ ui.allDone }}</h2>
-      <p>{{ ui.comeBack }}</p>
+      <h2>{{ ui.batchDone }}</h2>
+      <p>{{ ui.batchDoneDesc }}</p>
+      <button class="btn-next-batch" @click="loadNextBatch">
+        {{ ui.nextBatch }}
+      </button>
     </div>
 
     <div v-else class="card-area">
+      <!-- New vocab badge -->
+      <div v-if="isCurrentNew" class="new-badge">{{ ui.newVocab }}</div>
+
       <!-- Question side -->
       <div class="flashcard" :class="{ flipped: vocabStore.isFlipped }" @click="handleFlip">
         <div class="card-front">
@@ -85,30 +104,41 @@ const ui = computed(() => {
     return {
       logout: 'Keluar',
       loading: 'Memuat...',
-      allDone: 'Semua kartu sudah selesai!',
-      comeBack: 'Kembali lagi nanti untuk mengulang.',
+      loadingAudio: 'Memuat audio...',
+      batchDone: 'Blok selesai!',
+      batchDoneDesc: 'Semua kartu di blok ini sudah dipelajari. Muat blok berikutnya atau kembali nanti.',
+      nextBatch: 'Blok berikutnya',
       tapToFlip: 'Ketuk untuk membalik',
       red: 'Tidak tahu',
       orange: 'Setengah tahu',
-      green: 'Tahu!'
+      green: 'Tahu!',
+      today: 'Hari ini',
+      batchNew: 'Baru di blok',
+      total: 'Total',
+      newVocab: 'Baru'
     }
   }
   return {
     logout: 'Abmelden',
     loading: 'Laden...',
-    allDone: 'Alle Karten geschafft!',
-    comeBack: 'Komm später zurück zum Wiederholen.',
+    loadingAudio: 'Audio wird geladen...',
+    batchDone: 'Lernblock geschafft!',
+    batchDoneDesc: 'Alle Karten in diesem Block sind bearbeitet. Lade den nächsten Block oder komm später zurück.',
+    nextBatch: 'Nächster Block',
     tapToFlip: 'Tippen zum Umdrehen',
     red: 'Nicht gewusst',
     orange: 'Halb gewusst',
-    green: 'Gewusst!'
+    green: 'Gewusst!',
+    today: 'Heute gelernt',
+    batchNew: 'Neue im Block',
+    total: 'Gesamt',
+    newVocab: 'Neue Vokabel'
   }
 })
 
 const questionText = computed(() => {
   const vocab = vocabStore.currentVocab
   if (!vocab) return ''
-  // Indonesian learners see German first, German learners see Indonesian first
   return isGermanLearner.value ? vocab.I : vocab.D
 })
 
@@ -130,6 +160,12 @@ const answerLang = computed(() => isGermanLearner.value ? 'd' : 'i')
 
 const stats = computed(() => vocabStore.getStats())
 
+const isCurrentNew = computed(() => {
+  if (!vocabStore.currentCard) return false
+  const p = vocabStore.progress[vocabStore.currentCard]
+  return p && p.isNew
+})
+
 function handleFlip() {
   if (!vocabStore.isFlipped) {
     vocabStore.flipCard()
@@ -138,6 +174,10 @@ function handleFlip() {
 
 function rate(rating) {
   vocabStore.rateCard(rating)
+}
+
+function loadNextBatch() {
+  vocabStore.loadNextBatch()
 }
 
 function handleLogout() {
@@ -167,20 +207,41 @@ onUnmounted(() => {
 .learn-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
+  align-items: flex-start;
+  margin-bottom: 24px;
 }
 
-.stats {
+.stats-row {
   display: flex;
-  gap: 12px;
-  font-size: 1rem;
-  color: #555;
-  font-weight: 600;
+  gap: 16px;
 }
 
-.mastered {
-  color: #27ae60;
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #555;
+}
+
+.today-value {
+  color: #4a90d9;
+}
+
+.batch-value {
+  color: #f39c12;
 }
 
 .btn-logout {
@@ -192,6 +253,7 @@ onUnmounted(() => {
   cursor: pointer;
   font-size: 0.9rem;
   transition: all 0.2s;
+  margin-top: 4px;
 }
 
 .btn-logout:hover {
@@ -203,7 +265,21 @@ onUnmounted(() => {
   text-align: center;
   padding: 60px 0;
   color: #888;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #eee;
+  border-top: 4px solid #4a90d9;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .done-message {
@@ -218,6 +294,23 @@ onUnmounted(() => {
 
 .done-message p {
   color: #666;
+  margin-bottom: 24px;
+}
+
+.btn-next-batch {
+  padding: 12px 30px;
+  background: #4a90d9;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-next-batch:hover {
+  background: #357abd;
 }
 
 .card-area {
@@ -225,6 +318,18 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 24px;
+}
+
+.new-badge {
+  align-self: flex-start;
+  background: #4a90d9;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .flashcard {
