@@ -132,34 +132,37 @@ export const useVocabStore = defineStore('vocab', () => {
 
   function pickNextCard() {
     const now = Date.now()
+    const TOLERANCE_MS = 2 * 60 * 1000 // 2 minutes tolerance
 
     // Only consider vocabs in the current batch
-    // 1) Due-for-review within batch
+    // 1) Due-for-review within batch (with 2-min tolerance)
     const dueVocabs = []
     for (const vocabId of currentBatch.value) {
       const data = progress.value[vocabId]
       if (!data || data.isNew) continue
       const intervalMs = INTERVALS[data.interval]
-      if (intervalMs && (now - data.timestamp) >= intervalMs) {
-        dueVocabs.push({ vocabId, overdue: now - data.timestamp - intervalMs })
+      if (intervalMs && (now - data.timestamp) >= (intervalMs - TOLERANCE_MS)) {
+        dueVocabs.push({ vocabId })
       }
     }
 
     if (dueVocabs.length > 0) {
-      dueVocabs.sort((a, b) => b.overdue - a.overdue)
-      currentCard.value = dueVocabs[0].vocabId
+      // Random selection from due cards
+      const picked = dueVocabs[Math.floor(Math.random() * dueVocabs.length)]
+      currentCard.value = picked.vocabId
       isFlipped.value = false
       return
     }
 
-    // 2) Pick next new vocab from batch
-    const nextNew = currentBatch.value.find(id => {
+    // 2) Pick a random new vocab from batch
+    const newVocabs = currentBatch.value.filter(id => {
       const p = progress.value[id]
       return p && p.isNew
     })
 
-    if (nextNew) {
-      currentCard.value = nextNew
+    if (newVocabs.length > 0) {
+      const picked = newVocabs[Math.floor(Math.random() * newVocabs.length)]
+      currentCard.value = picked
       isFlipped.value = false
       return
     }

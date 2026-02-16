@@ -4,10 +4,16 @@ dist/
 .env
 .env.local
 
-# .NET
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.db
+
+# .NET (legacy)
 bin/
 obj/
-*.db
 *.user
 *.suo
 

@@ -1,0 +1,9 @@
+target/
+*.class
+*.jar
+*.war
+*.db
+AudioFiles/
+.mvn/
+mvnw
+mvnw.cmd
