@@ -13,16 +13,18 @@
           :placeholder="labels.usernamePlaceholder"
         />
       </div>
-      <div class="form-group">
-        <label for="password">{{ labels.password }}</label>
-        <input
+      <!--
+        <div class="form-group">
+          <label for="password">{{ labels.password }}</label>
+          <input
           id="password"
           v-model="password"
           type="password"
           required
           :placeholder="labels.passwordPlaceholder"
-        />
-      </div>
+          />
+        </div>
+        -->
       <p v-if="error" class="error">{{ error }}</p>
       <button type="submit" class="btn-primary">{{ labels.login }}</button>
     </form>
@@ -34,35 +36,36 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '../stores/userStore'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useUserStore } from "../stores/userStore";
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
-const username = ref('')
-const password = ref('')
-const error = ref('')
+const username = ref("");
+const password = ref("");
+const error = ref("");
 
-const title = 'Vokabeltrainer'
+const title = "Vokabeltrainer";
 const labels = {
-  username: 'Benutzername / Nama pengguna',
-  usernamePlaceholder: 'Benutzername eingeben',
-  password: 'Passwort / Kata sandi',
-  passwordPlaceholder: 'Passwort eingeben',
-  login: 'Anmelden / Masuk',
-  noAccount: 'Noch kein Konto? / Belum punya akun?',
-  register: 'Registrieren / Daftar'
-}
+  username: "Benutzername / Nama pengguna",
+  usernamePlaceholder: "Benutzername eingeben",
+  password: "Passwort / Kata sandi",
+  passwordPlaceholder: "Passwort eingeben",
+  login: "Anmelden / Masuk",
+  noAccount: "Noch kein Konto? / Belum punya akun?",
+  register: "Registrieren / Daftar",
+};
 
 async function handleLogin() {
-  error.value = ''
+  error.value = "";
   try {
-    await userStore.login(username.value, password.value)
-    router.push('/learn')
+    await userStore.login(username.value /*password.value*/);
+    router.push("/learn");
   } catch (e) {
-    error.value = e.response?.data?.message || 'Login fehlgeschlagen / Login gagal'
+    error.value =
+      e.response?.data?.message || "Login fehlgeschlagen / Login gagal";
   }
 }
 </script>
