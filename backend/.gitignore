@@ -1,0 +1,8 @@
+db-files
+
+*.db
+*.sqlite
+*.db-shm
+*.db-wal
+
+/AudioFiles
