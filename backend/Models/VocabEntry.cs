@@ -12,6 +12,8 @@ public class VocabEntry
     public string? FrontsideAfterNote { get; set; }
     public string Backside { get; set; }
 
+    public string? BetweenLayer { get; set; }
+
     public string? BacksideBeforeNote { get; set; }
 
     public string? BacksideAfterNote { get; set; }

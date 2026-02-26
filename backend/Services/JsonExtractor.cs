@@ -13,21 +13,25 @@ public static class JsonExtractor
         var jArray = JArray.Parse(jsonString);
         foreach (JObject item in jArray)
         {
+            if (item["indexed"] == null)
+            {
+                List<VocabEntry> germanEntries = CreateObjectList(item, "d");
+                List<VocabEntry> indonesianEntries = CreateObjectList(item, "in");
 
-            List<VocabEntry> germanEntries = CreateObjectList(item, "d");
-            List<VocabEntry> indonesianEntries = CreateObjectList(item, "id");
-
-            _db.Vocabs.AddRange(germanEntries);
-            _db.Vocabs.AddRange(indonesianEntries);
-
+                _db.Vocabs.AddRange(germanEntries);
+                _db.Vocabs.AddRange(indonesianEntries);
+                item["indexed"] = 1;
+            }
         }
+        jsonString = jArray.ToString();
+        File.WriteAllText(path, jsonString);
         _db.SaveChanges();
 
     }
 
     static List<VocabEntry> CreateObjectList(JObject obj, string language)
     {
-        var counterPart = language == "d" ? "id" : "d";
+        var counterPart = language == "d" ? "in" : "d";
         List<VocabEntry> vocabEntries = new List<VocabEntry>();
         try
         {
@@ -48,9 +52,10 @@ public static class JsonExtractor
 
 
                 entry.Backside = obj[counterPart]![i]?["v"]?.ToString();
+                entry.BetweenLayer = obj["zw"]?[0]?["v"]?.ToString() ?? "";
                 entry.BacksideBeforeNote = obj[counterPart]![i]?["before"]?.ToString() ?? "";
                 entry.Languagekey = language;
-                entry.hasCopyright = obj["hasCopyright"]?.ToObject<int>() ?? 0;
+                entry.hasCopyright = obj["c"]?.ToObject<int>() ?? 0;
 
                 vocabEntries.Add(entry);
             }

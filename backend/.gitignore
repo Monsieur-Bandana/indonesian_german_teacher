@@ -6,3 +6,4 @@ db-files
 *.db-wal
 
 /AudioFiles
+/Migrations
