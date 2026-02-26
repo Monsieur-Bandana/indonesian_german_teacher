@@ -6,6 +6,8 @@ public class VocabProgress
     public int UserId { get; set; }
     public int VocabId { get; set; }
 
+    public string LearningLanguage { get; set; } = string.Empty;
+
     /// <summary>
     /// Interval key: "red" (2min), "orange" (5min), "green" (10min),
     /// "day1", "day2", "day4", "day8"

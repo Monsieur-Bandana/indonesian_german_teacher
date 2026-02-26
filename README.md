@@ -28,6 +28,7 @@ A spaced repetition flashcard app for learning German-Indonesian vocabulary.
 ## Getting Started
 
 ### Frontend
+
 ```bash
 cd frontend
 npm install
@@ -35,6 +36,7 @@ npm run dev    # starts on http://localhost:3000
 ```
 
 ### Backend
+
 ```bash
 cd backend
 dotnet restore
@@ -49,3 +51,10 @@ dotnet run     # starts on http://localhost:5000
 4. Rate yourself: Red (2min) / Orange (5min) / Green (10min)
 5. Green streak escalation: 10min → 1 day → 2 days → 4 days → 8 days
 6. Progress auto-saves when you switch tabs or close the app
+
+## Kategorien für Vokabeln
+
+- Sätze
+- Verständigung
+- GRammatik
+- Frage - Antwort

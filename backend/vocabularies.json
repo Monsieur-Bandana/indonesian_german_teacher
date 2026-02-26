@@ -1,0 +1,129 @@
+[
+  {
+    "d": [{ "v": "Kannst du schon Indonesisch (sprechen)?" }],
+    "zw": [{ "v": "schon können sprechen Sprache Indonesien" }],
+    "id": [{ "v": "Sudah bisa bicara Bahasa Indonésia?" }],
+    "c": 1
+  },
+  {
+    "d": [
+      {
+        "v": "Nein, nur ein wenig.",
+        "before": "Kannst du schon Indonesisch (sprechen)?"
+      }
+    ],
+    "zw": [{ "v": "noch-nicht, bisschen bloß" }],
+    "id": [
+      {
+        "v": "Belum, sedikit saja.",
+        "before": "Sudah bisa bicara Bahasa Indonésia?"
+      }
+    ],
+    "c": 1
+  },
+  {
+    "d": [{ "v": "Können Sie mir bitte übersetzen?" }],
+    "zw": [{ "v": "helfen, können übersetzen" }],
+    "id": [{ "v": "Tolong, bisa menterjemahkan." }],
+    "c": 1
+  },
+  {
+    "d": [{ "v": "Spricht hier jemand Englisch?" }],
+    "zw": [
+      { "v": "hier es-gibt Mensch welcher kann sprechen Sprache England" }
+    ],
+    "id": [{ "v": "Di sini orang yang bisa bicara Bahasa Inggeris?" }],
+    "c": 1
+  },
+  {
+    "d": [{ "v": "Wie bitte?" }],
+    "zw": [{ "v": "was" }],
+    "id": [{ "v": "Apa?" }],
+    "c": 1
+  },
+  {
+    "d": [{ "v": "Ich verstehe nicht." }],
+    "zw": [{ "v": "ich nicht verstehen" }],
+    "id": [{ "v": "Saya tidak mengerti." }]
+  },
+  {
+    "d": [{ "v": "Ich verstehe." }],
+    "zw": [{ "v": "ich verstehen" }],
+    "id": [{ "v": "Saya mengerti." }]
+  },
+  {
+    "d": [{ "v": "Wie heißt das auf Indonesisch?" }],
+    "zw": [{ "v": "wie Bedeutung-seine in Sprache Indonesien" }],
+    "id": [{ "v": "Bagaimana artinya dalam Bahasa Indonésia?" }],
+    "c": 1
+  },
+  {
+    "d": [{ "v": "Ich möchte Indonesisch lernen." }],
+    "zw": [{ "v": "ich wollen lernen Sprache Indonesien" }],
+    "id": [{ "v": "Saya mau belajar Bahasa Indonésia." }],
+    "c": 1
+  },
+  {
+    "d": [{ "v": "Können Sie mir das bitte aufschreiben?" }],
+    "zw": [{ "v": "helfen, können schreiben das" }],
+    "id": [{ "v": "Tolong, bisa menulis itu?" }],
+    "c": 1
+  },
+  {
+    "d": [{ "v": "Bitte, wiederholen Sie" }],
+    "zw": [{ "v": "Entschuldigung, einmal wieder" }],
+    "id": [{ "v": "Ma'af, sekali lagi." }],
+    "c": 1
+  },
+  {
+    "d": [{ "v": "Etwas langsamer bitte." }],
+    "zw": [{ "v": "helfen, können sprechen mehr langsam" }],
+    "id": [{ "v": "Tolong, bisa bicara lebih pelan-pelan?" }],
+    "c": 1
+  },
+  {
+    "d": [{ "v": "Wie heißt das?" }],
+    "zw": [{ "v": "was Bedeutung-seine das" }],
+    "id": [{ "v": "Apa artinya itu?" }],
+    "c": 1
+  },
+  {
+    "d": [
+      {
+        "v": "dieser",
+        "descr": "pronoun for close-by object, nominativ, männlich, singular"
+      },
+      {
+        "v": "diese",
+        "descr": "pronoun for close-by object, nominativ, weiblich, singular"
+      },
+      {
+        "v": "dieses, dies",
+        "descr": "pronoun for close-by object, nominativ, neutral, singular"
+      }
+    ],
+    "zw": [],
+    "id": [{ "v": "ini" }]
+  },
+  {
+    "d": [
+      {
+        "v": "jener",
+        "descr": "pronoun for distant object, nominativ, männlich, singular"
+      },
+      {
+        "v": "jene",
+        "descr": "pronoun for distant object, nominativ, weiblich, singular"
+      },
+      {
+        "v": "jenes",
+        "descr": "pronoun for distant object, nominativ, neutral, singular"
+      },
+      { "v": "der", "descr": "Artikel, nominativ, männlich, singular" },
+      { "v": "die", "descr": "Artikel, nominativ, weiblich, singular" },
+      { "v": "das", "descr": "Artikel, nominativ, neutral, singular" }
+    ],
+    "zw": [],
+    "id": [{ "v": "itu" }]
+  }
+]
