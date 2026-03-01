@@ -103,5 +103,6 @@ export const useVocabStore = defineStore("vocab", () => {
     vocabslvlred,
     vocabslvorange,
     vocabslvgreen,
+    learningSession,
   };
 });

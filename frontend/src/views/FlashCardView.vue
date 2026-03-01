@@ -1,22 +1,32 @@
 <script setup lang="ts">
-import { onMounted, computed, ref } from "vue";
+import { onMounted, computed, ref, onUnmounted } from "vue";
 import { useVocabStore } from "../stores/vocabStore";
 import { Flashcard } from "../models/Vocab";
 import { useUserStore } from "../stores/userStore";
+import { vocabProgressService } from "../services/vocabProgressService";
 
 const vocabStore = useVocabStore();
 const isFrontside = ref(true);
 const vocabIndex = ref(0);
 const learningCards = ref<Flashcard[]>([]);
-const learingLanguage = computed(() => useUserStore().learningLanguage);
+const learingLanguage = ref<string>("");
+const userStore = useUserStore();
 
-onMounted(() => {
-  vocabStore.fetchVocabs(learingLanguage.value);
+onMounted(async () => {
+  learingLanguage.value = userStore.learningLanguage;
+  await vocabStore.fetchVocabs(learingLanguage.value);
   learningCards.value = vocabStore.vocabs;
 });
 
+onUnmounted(async () => {
+  await vocabProgressService.saveProgress(
+    userStore.userId as any as number,
+    vocabStore.learningSession,
+  );
+});
+
 const demovocab = computed(() => learningCards.value[vocabIndex.value]);
-// test
+
 const next = (interval: string) => {
   isFrontside.value = true;
   const now = new Date();
@@ -35,10 +45,13 @@ const next = (interval: string) => {
 
   vocabIndex.value++;
   if (vocabIndex.value >= learningCards.value.length) {
+    vocabIndex.value = 0;
     learningCards.value = vocabStore.vocabslvlred;
     if (learningCards.value.length === 0) {
+      vocabIndex.value = 0;
       learningCards.value = vocabStore.vocabslvorange;
       if (learningCards.value.length === 0) {
+        vocabIndex.value = 0;
         learningCards.value = vocabStore.vocabslvgreen;
         if (learningCards.value.length === 0) {
           alert("Alle Vokabeln gelernt! Gut gemacht!");
