@@ -14,6 +14,15 @@ export interface Flashcard {
 export interface VocabProgress {
   vocabId: number;
   interval: string;
-  timestamp: number;
+  timestamp: string;
   greenStreak: number;
+}
+
+export interface DashboardData {
+  totalVocabs: number;
+  vocabsDueToday: number;
+  newVocabs: number;
+  redVocabs: number;
+  orangeVocabs: number;
+  greenVocabs: number;
 }

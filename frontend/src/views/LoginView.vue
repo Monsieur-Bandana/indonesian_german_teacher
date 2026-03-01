@@ -62,7 +62,7 @@ async function handleLogin() {
   error.value = "";
   try {
     await userStore.login(username.value /*password.value*/);
-    router.push("/learn");
+    router.push("/dashboard");
   } catch (e) {
     error.value =
       e.response?.data?.message || "Login fehlgeschlagen / Login gagal";

@@ -63,6 +63,8 @@ public class VocabProgressController : ControllerBase
 
         foreach (var entry in entries)
         {
+            Console.WriteLine("__________________________________");
+            Console.WriteLine($"Saving progress for User {userId}, Vocab {entry.VocabId}: Interval={entry.Interval}, Timestamp={entry.Timestamp}, GreenStreak={entry.GreenStreak}");
             if (existingProgress.TryGetValue(entry.VocabId, out var existing))
             {
                 // Update existing entry
@@ -87,4 +89,39 @@ public class VocabProgressController : ControllerBase
         await _db.SaveChangesAsync();
         return Ok(new { message = "Fortschritt gespeichert / Kemajuan disimpan" });
     }
+
+    [HttpGet("dashboard/{id}/{language}")]
+    public async Task<ActionResult<DashboardDto>> GetDashboard(int id, string language)
+    {
+        int totalVocabs = await _db.Vocabs.CountAsync(v => v.Languagekey == language);
+        int vocabsDueToday = await _db.VocabProgress
+            .Where(vp => vp.UserId == id
+                && vp.Timestamp.AddDays(vp.GreenStreak) <= DateOnly.FromDateTime(DateTime.UtcNow) && vp.Interval == "green")
+            .CountAsync();
+        int newVocabs = await _db.Vocabs
+            .Where(v => v.Languagekey == language
+                && !_db.VocabProgress.Any(vp => vp.UserId == id && vp.VocabId == v.Id)).CountAsync();
+        int redVocabs = await _db.VocabProgress
+            .Where(vp => vp.UserId == id && vp.Interval == "red")
+            .CountAsync();
+        int orangeVocabs = await _db.VocabProgress
+            .Where(vp => vp.UserId == id && vp.Interval == "orange")
+            .CountAsync();
+        int greenVocabs = await _db.VocabProgress
+            .Where(vp => vp.UserId == id && vp.Interval == "green")
+            .CountAsync();
+
+        var dashboard = new DashboardDto
+        {
+            TotalVocabs = totalVocabs,
+            VocabsDueToday = vocabsDueToday,
+            NewVocabs = newVocabs,
+            RedVocabs = redVocabs,
+            OrangeVocabs = orangeVocabs,
+            GreenVocabs = greenVocabs
+        };
+
+        return Ok(dashboard);
+    }
 }
+

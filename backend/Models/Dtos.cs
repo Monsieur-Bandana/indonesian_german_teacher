@@ -20,9 +20,10 @@ public class UserResponse
 
 public class VocabProgressDto
 {
+    public int Id { get; set; }
     public int VocabId { get; set; }
     public string Interval { get; set; } = string.Empty;
-    public long Timestamp { get; set; }
+    public DateOnly Timestamp { get; set; }
     public int GreenStreak { get; set; }
 }
 
@@ -39,4 +40,15 @@ public class VocabEntryDto
     public string Languagekey { get; set; } = string.Empty;
     public int? hasCopyright { get; set; }
     //  public List<int> CategoryIds { get; set; } = new List<int>();
+}
+
+public class DashboardDto
+{
+    public int TotalVocabs { get; set; }
+    public int VocabsDueToday { get; set; }
+    public int NewVocabs { get; set; }
+    public int RedVocabs { get; set; }
+    public int OrangeVocabs { get; set; }
+    public int GreenVocabs { get; set; }
+
 }

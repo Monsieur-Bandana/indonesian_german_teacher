@@ -41,8 +41,70 @@ public class VocabController : ControllerBase
         return Ok(new { message = "Fortschritt gespeichert / Kemajuan disimpan" });
     }
 
-    [HttpGet("{language}")]
-    public async Task<ActionResult<List<VocabProgressDto>>> GetProgress(string language)
+    [HttpGet("{id}/{language}")]
+    public async Task<ActionResult<List<VocabProgressDto>>> GetVocabsByProgress(int id, string language)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var progresses = await _db.VocabProgress
+            .Where(vp => vp.UserId == id
+                && (
+                    vp.Interval != "green"
+                    || vp.Timestamp.AddDays(vp.GreenStreak) == today
+                )
+            )
+            .ToListAsync();
+
+        var vocabIds = progresses
+            .Select(p => p.VocabId)
+            .ToList();
+
+        var vocabs = await _db.Vocabs.Where(v => v.Languagekey == language && vocabIds.Contains(v.Id))
+            .Select(vp => new VocabEntryDto
+            {
+                Id = vp.Id,
+                Frontside = vp.Frontside,
+                FrontsideBeforeNote = vp.FrontsideBeforeNote,
+                FrontsideAfterNote = vp.FrontsideAfterNote,
+                Backside = vp.Backside,
+                BetweenLayer = vp.BetweenLayer,
+                BacksideBeforeNote = vp.BacksideBeforeNote,
+                BacksideAfterNote = vp.BacksideAfterNote,
+                Languagekey = vp.Languagekey,
+                hasCopyright = vp.hasCopyright
+            })
+            .ToListAsync();
+
+        var batchSize = 25;
+        int vocabsLeft = batchSize - vocabs.Count;
+
+        var newVocabs = await _db.Vocabs
+            .Where(v => v.Languagekey == language
+                && !_db.VocabProgress
+                    .Any(vp => vp.UserId == id && vp.VocabId == v.Id)
+            )
+            .Take(vocabsLeft)
+            .Select(v => new VocabEntryDto
+            {
+                Id = v.Id,
+                Frontside = v.Frontside,
+                FrontsideBeforeNote = v.FrontsideBeforeNote,
+                FrontsideAfterNote = v.FrontsideAfterNote,
+                Backside = v.Backside,
+                BetweenLayer = v.BetweenLayer,
+                BacksideBeforeNote = v.BacksideBeforeNote,
+                BacksideAfterNote = v.BacksideAfterNote,
+                Languagekey = v.Languagekey,
+                hasCopyright = v.hasCopyright
+            })
+            .ToListAsync();
+
+        vocabs.AddRange(newVocabs);
+
+        return Ok(vocabs);
+    }
+
+    [HttpGet("new/{language}")]
+    public async Task<ActionResult<List<VocabProgressDto>>> GetNew(string language)
     {
 
         var vocabs = await _db.Vocabs.Where(v => v.Languagekey == language)

@@ -11,37 +11,49 @@ const vocabIndex = ref(0);
 const learningCards = ref<Flashcard[]>([]);
 const learingLanguage = ref<string>("");
 const userStore = useUserStore();
+const loading = ref(true);
 
 onMounted(async () => {
   learingLanguage.value = userStore.learningLanguage;
-  await vocabStore.fetchVocabs(learingLanguage.value);
+  await vocabStore.fetchVocabs(
+    userStore.userId as any as number,
+    learingLanguage.value,
+  );
+  await vocabStore.fetchProgress(userStore.userId as any as number);
   learningCards.value = vocabStore.vocabs;
+  loading.value = false;
 });
 
 onUnmounted(async () => {
+  await saveProgressToDb();
+});
+
+async function saveProgressToDb() {
+  loading.value = true;
   await vocabProgressService.saveProgress(
     userStore.userId as any as number,
     vocabStore.learningSession,
   );
-});
+  loading.value = false;
+}
 
 const demovocab = computed(() => learningCards.value[vocabIndex.value]);
 
-const next = (interval: string) => {
+const next = async (interval: string) => {
   isFrontside.value = true;
-  const now = new Date();
-  const learnedDate = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate(),
-  ).getTime();
+  const today = new Date();
+  const dateOnly = today.toISOString().split("T")[0];
 
   vocabStore.safeProgress({
     vocabId: demovocab.value.id,
     interval: interval,
-    timestamp: learnedDate,
+    timestamp: dateOnly,
     greenStreak: 0,
   });
+
+  if (vocabIndex.value % 5 === 0) {
+    await saveProgressToDb();
+  }
 
   vocabIndex.value++;
   if (vocabIndex.value >= learningCards.value.length) {
@@ -70,12 +82,14 @@ const next = (interval: string) => {
     vocabStore.vocabslvorange,
     "lvlgreen",
     vocabStore.vocabslvgreen,
+    "progress",
+    vocabStore.learningSession,
   );
 };
 </script>
 
 <template>
-  <div v-if="vocabStore.loading">Loading...</div>
+  <div v-if="loading">Loading...</div>
 
   <div v-else-if="demovocab" class="h-screen">
     <div class="flex flex-col justify-end items-center h-[30%]">

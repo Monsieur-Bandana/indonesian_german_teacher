@@ -2,9 +2,16 @@ import { createRouter, createWebHistory } from "vue-router";
 import LoginView from "../views/LoginView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import FlashCardView from "../views/FlashCardView.vue";
+import DashBoardView from "../views/DashBoardView.vue";
 
 const routes = [
   { path: "/", redirect: "/login" },
+  {
+    path: "/dashboard",
+    name: "Dashboard",
+    component: DashBoardView,
+    meta: { requiresAuth: true },
+  },
   { path: "/login", name: "Login", component: LoginView },
   { path: "/register", name: "Register", component: RegisterView },
   {

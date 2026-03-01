@@ -82,7 +82,7 @@ async function handleRegister() {
   }
   try {
     await userStore.register(username.value, language.value);
-    router.push("/learn");
+    router.push("/dashboard");
   } catch (e: any) {
     error.value =
       e.response?.data?.message ||

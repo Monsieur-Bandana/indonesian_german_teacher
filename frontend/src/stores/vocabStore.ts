@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { vocabService } from "../services/vocabService";
 import type { Flashcard, VocabProgress } from "../models/Vocab";
+import { vocabProgressService } from "../services/vocabProgressService";
 
 function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array]; // Kopie erstellen (Original bleibt unverändert)
@@ -21,12 +22,14 @@ export const useVocabStore = defineStore("vocab", () => {
   const vocabslvlred = ref<Flashcard[]>([]);
   const vocabslvorange = ref<Flashcard[]>([]);
   const vocabslvgreen = ref<Flashcard[]>([]);
-  const loading = ref(false);
 
-  async function fetchVocabs(lang: string) {
-    loading.value = true;
-    vocabs.value = shuffleArray(await vocabService.get(lang));
-    loading.value = false;
+  async function fetchVocabs(id: number, lang: string) {
+    vocabs.value = shuffleArray(await vocabService.get(id, lang));
+  }
+
+  async function fetchProgress(userId: number) {
+    const progress = await vocabProgressService.getProgress(userId);
+    learningSession.value = progress;
   }
 
   function safeProgress(progress: VocabProgress) {
@@ -37,7 +40,10 @@ export const useVocabStore = defineStore("vocab", () => {
         indexExists = true;
         learningSession.value[i].interval = progress.interval;
         learningSession.value[i].timestamp = progress.timestamp;
-        if (learningSession.value[i].interval === "green") {
+        if (
+          learningSession.value[i].interval === "green" &&
+          progress.interval === "green"
+        ) {
           learningSession.value[i].greenStreak++;
           progress.greenStreak = learningSession.value[i].greenStreak;
         }
@@ -97,9 +103,9 @@ export const useVocabStore = defineStore("vocab", () => {
 
   return {
     vocabs,
-    loading,
     fetchVocabs,
     safeProgress,
+    fetchProgress,
     vocabslvlred,
     vocabslvorange,
     vocabslvgreen,

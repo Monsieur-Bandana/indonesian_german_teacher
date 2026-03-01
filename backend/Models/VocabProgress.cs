@@ -17,7 +17,7 @@ public class VocabProgress
     /// <summary>
     /// Unix timestamp in milliseconds of last review
     /// </summary>
-    public long Timestamp { get; set; }
+    public DateOnly Timestamp { get; set; }
 
     /// <summary>
     /// Number of consecutive green ratings (for escalation)
