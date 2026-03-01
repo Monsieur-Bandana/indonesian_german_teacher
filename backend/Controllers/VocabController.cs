@@ -18,6 +18,7 @@ public class VocabController : ControllerBase
     }
 
     // get VocabChunk (List)
+    // für später: outer join by id, wenn entry bereits gelernt
 
     // get VocabChunk by Cagegory
 
@@ -39,4 +40,28 @@ public class VocabController : ControllerBase
         await _db.SaveChangesAsync();
         return Ok(new { message = "Fortschritt gespeichert / Kemajuan disimpan" });
     }
+
+    [HttpGet("{language}")]
+    public async Task<ActionResult<List<VocabProgressDto>>> GetProgress(string language)
+    {
+
+        var vocabs = await _db.Vocabs.Where(v => v.Languagekey == language)
+            .Select(vp => new VocabEntryDto
+            {
+                Id = vp.Id,
+                Frontside = vp.Frontside,
+                FrontsideBeforeNote = vp.FrontsideBeforeNote,
+                FrontsideAfterNote = vp.FrontsideAfterNote,
+                Backside = vp.Backside,
+                BetweenLayer = vp.BetweenLayer,
+                BacksideBeforeNote = vp.BacksideBeforeNote,
+                BacksideAfterNote = vp.BacksideAfterNote,
+                Languagekey = vp.Languagekey,
+                hasCopyright = vp.hasCopyright
+            })
+            .ToListAsync();
+
+        return Ok(vocabs);
+    }
 }
+

@@ -45,14 +45,16 @@ public static class JsonExtractor
                     entry.FrontsideBeforeNote += obj[language]![y]?["before"]?.ToString() ?? "";
 
                 }
-                Console.WriteLine(entry.FrontsideBeforeNote);
-                Console.WriteLine(entry.Frontside);
+
                 entry.FrontsideAfterNote =
                     obj[counterPart]![i]?["descr"]?.ToString() ?? "";
 
 
                 entry.Backside = obj[counterPart]![i]?["v"]?.ToString();
-                entry.BetweenLayer = obj["zw"]?[0]?["v"]?.ToString() ?? "";
+                entry.BetweenLayer =
+                    (obj["zw"] is JArray zw && zw.Count > 0)
+                        ? zw[0]?["v"]?.ToString() ?? ""
+                        : "";
                 entry.BacksideBeforeNote = obj[counterPart]![i]?["before"]?.ToString() ?? "";
                 entry.Languagekey = language;
                 entry.hasCopyright = obj["c"]?.ToObject<int>() ?? 0;

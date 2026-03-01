@@ -13,24 +13,15 @@
           :placeholder="labels.usernamePlaceholder"
         />
       </div>
-      <div class="form-group">
-        <label for="password">{{ labels.password }}</label>
-        <input
-          id="password"
-          v-model="password"
-          type="password"
-          required
-          :placeholder="labels.passwordPlaceholder"
-        />
-      </div>
+
       <div class="form-group">
         <label>{{ labels.languageQuestion }}</label>
         <div class="language-options">
           <button
             type="button"
             class="lang-btn"
-            :class="{ active: language === 'german' }"
-            @click="language = 'german'"
+            :class="{ active: language === 'in' }"
+            @click="language = 'in'"
           >
             🇩🇪 Saya ingin belajar bahasa Jerman
             <span class="lang-sub">Ich möchte Deutsch lernen</span>
@@ -38,8 +29,8 @@
           <button
             type="button"
             class="lang-btn"
-            :class="{ active: language === 'indonesian' }"
-            @click="language = 'indonesian'"
+            :class="{ active: language === 'd' }"
+            @click="language = 'd'"
           >
             🇮🇩 Ich möchte Indonesisch lernen
             <span class="lang-sub">Saya ingin belajar bahasa Indonesia</span>
@@ -58,42 +49,44 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '../stores/userStore'
+<script setup lang="ts">
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useUserStore } from "../stores/userStore";
+import { OperationCanceledException } from "typescript";
 
-const router = useRouter()
-const userStore = useUserStore()
+const router = useRouter();
+const userStore = useUserStore();
 
-const username = ref('')
-const password = ref('')
-const language = ref('')
-const error = ref('')
+const username = ref("");
+const language = ref("");
+const error = ref("");
 
-const title = 'Registrieren / Daftar'
+const title = "Registrieren / Daftar";
 const labels = {
-  username: 'Benutzername / Nama pengguna',
-  usernamePlaceholder: 'Benutzername wählen',
-  password: 'Passwort / Kata sandi',
-  passwordPlaceholder: 'Passwort wählen',
-  languageQuestion: 'Was möchtest du lernen? / Apa yang ingin kamu pelajari?',
-  register: 'Registrieren / Daftar',
-  hasAccount: 'Schon ein Konto? / Sudah punya akun?',
-  login: 'Anmelden / Masuk'
-}
+  username: "Benutzername / Nama pengguna",
+  usernamePlaceholder: "Benutzername wählen",
+  password: "Passwort / Kata sandi",
+  passwordPlaceholder: "Passwort wählen",
+  languageQuestion: "Was möchtest du lernen? / Apa yang ingin kamu pelajari?",
+  register: "Registrieren / Daftar",
+  hasAccount: "Schon ein Konto? / Sudah punya akun?",
+  login: "Anmelden / Masuk",
+};
 
 async function handleRegister() {
-  error.value = ''
+  error.value = "";
   if (!language.value) {
-    error.value = 'Bitte wähle eine Sprache / Silakan pilih bahasa'
-    return
+    error.value = "Bitte wähle eine Sprache / Silakan pilih bahasa";
+    return;
   }
   try {
-    await userStore.register(username.value, password.value, language.value)
-    router.push('/learn')
-  } catch (e) {
-    error.value = e.response?.data?.message || 'Registrierung fehlgeschlagen / Pendaftaran gagal'
+    await userStore.register(username.value, language.value);
+    router.push("/learn");
+  } catch (e: any) {
+    error.value =
+      e.response?.data?.message ||
+      "Registrierung fehlgeschlagen / Pendaftaran gagal";
   }
 }
 </script>

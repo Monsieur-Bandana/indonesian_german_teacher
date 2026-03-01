@@ -7,10 +7,9 @@ export const useUserStore = defineStore("user", () => {
   const username = ref(localStorage.getItem("username") || "");
   const learningLanguage = ref(localStorage.getItem("learningLanguage") || "");
 
-  async function login(name, password) {
+  async function login(name: string) {
     const response = await api.post("/api/user/login", {
       username: name,
-      password: password,
     });
     const user = response.data;
     userId.value = user.id;
@@ -22,7 +21,7 @@ export const useUserStore = defineStore("user", () => {
     return user;
   }
 
-  async function register(name, password, language) {
+  async function register(name: string, language: string) {
     const response = await api.post("/api/user/register", {
       username: name,
       //  password: password,
@@ -48,11 +47,11 @@ export const useUserStore = defineStore("user", () => {
   }
 
   function isLearningGerman() {
-    return learningLanguage.value === "german";
+    return learningLanguage.value === "d";
   }
 
   function isLearningIndonesian() {
-    return learningLanguage.value === "indonesian";
+    return learningLanguage.value === "in";
   }
 
   return {

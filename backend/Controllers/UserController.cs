@@ -19,12 +19,12 @@ public class UserController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult<UserResponse>> Register([FromBody] RegisterRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.Username) || /* string.IsNullOrWhiteSpace(request.Password)*/ true)
+        if (string.IsNullOrWhiteSpace(request.Username))
         {
             return BadRequest(new { message = "Benutzername und Passwort sind erforderlich / Username dan kata sandi diperlukan" });
         }
 
-        if (request.LearningLanguage != "german" && request.LearningLanguage != "indonesian")
+        if (request.LearningLanguage != "d" && request.LearningLanguage != "in")
         {
             return BadRequest(new { message = "Ungültige Sprache / Bahasa tidak valid" });
         }
@@ -38,7 +38,7 @@ public class UserController : ControllerBase
         var user = new User
         {
             Username = request.Username,
-          //  PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            //  PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             LearningLanguage = request.LearningLanguage
         };
 

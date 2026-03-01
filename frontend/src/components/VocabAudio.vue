@@ -6,7 +6,11 @@
         <span v-if="isPlaying" class="icon-playing">&#9654;</span>
         <span v-else class="icon-play">&#9654;</span>
       </button>
-      <button class="btn-rate-audio" @click="showReRecord = !showReRecord" :title="ui.rateAudio">
+      <button
+        class="btn-rate-audio"
+        @click="showReRecord = !showReRecord"
+        :title="ui.rateAudio"
+      >
         <span>&#9733;</span>
       </button>
     </div>
@@ -14,7 +18,11 @@
     <!-- Re-record option (when user thinks quality is bad) -->
     <div v-if="hasAudio && showReRecord" class="re-record-prompt">
       <p class="re-record-text">{{ ui.badQuality }}</p>
-      <button class="btn-record-small" @click="startRecording" :disabled="isRecording">
+      <button
+        class="btn-record-small"
+        @click="startRecording"
+        :disabled="isRecording"
+      >
         {{ ui.recordBetter }}
       </button>
     </div>
@@ -32,7 +40,12 @@
     <div v-if="isRecording" class="recording-active">
       <div class="recording-indicator">
         <span class="rec-dot"></span>
-        <canvas ref="waveCanvas" class="wave-canvas" width="200" height="40"></canvas>
+        <canvas
+          ref="waveCanvas"
+          class="wave-canvas"
+          width="200"
+          height="40"
+        ></canvas>
       </div>
       <p class="recording-text">{{ ui.recording }}</p>
       <button class="btn-stop" @click="stopRecording">
@@ -47,191 +60,206 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, watch, onBeforeUnmount } from 'vue'
-import api from '../services/apiService'
-import { getCachedAudio, refreshCachedAudio } from '../services/audioCache'
-import { useUserStore } from '../stores/userStore'
+<script setup lang="ts">
+import { ref, computed, watch, onBeforeUnmount } from "vue";
+import api from "../services/apiService";
+import { getCachedAudio, refreshCachedAudio } from "../services/audioCache";
+import { useUserStore } from "../stores/userStore";
 
 const props = defineProps({
   vocabId: { type: [String, Number], required: true },
-  lang: { type: String, required: true } // "d" or "i"
-})
+  lang: { type: String, required: true }, // "d" or "i"
+});
 
-const userStore = useUserStore()
-const isGermanLearner = computed(() => userStore.isLearningGerman())
+const userStore = useUserStore();
+const isGermanLearner = computed(() => userStore.isLearningGerman());
 
-const hasAudio = ref(false)
-const isPlaying = ref(false)
-const isRecording = ref(false)
-const showReRecord = ref(false)
-const justUploaded = ref(false)
+const hasAudio = ref(false);
+const isPlaying = ref(false);
+const isRecording = ref(false);
+const showReRecord = ref(false);
+const justUploaded = ref(false);
 
-const waveCanvas = ref(null)
-let mediaRecorder = null
-let audioChunks = []
-let animationId = null
-let waveOffset = 0
-let audioElement = null
+const waveCanvas = ref<HTMLCanvasElement | null>(null);
+let mediaRecorder: MediaRecorder | null = null;
+let audioChunks: BlobPart[] | undefined = [];
+let animationId: number | null = null;
+let waveOffset = 0;
+let audioElement: HTMLAudioElement | null = null;
 
 const ui = computed(() => {
   if (isGermanLearner.value) {
     return {
-      helpImprove: 'Bantu kami meningkatkan aplikasi!',
-      recordNow: 'Rekam',
-      recording: 'Merekam...',
-      stop: 'Berhenti',
-      thanks: 'Terima kasih!',
-      rateAudio: 'Nilai kualitas audio',
-      badQuality: 'Kualitas buruk? Rekam versi yang lebih baik:',
-      recordBetter: 'Rekam ulang'
-    }
+      helpImprove: "Bantu kami meningkatkan aplikasi!",
+      recordNow: "Rekam",
+      recording: "Merekam...",
+      stop: "Berhenti",
+      thanks: "Terima kasih!",
+      rateAudio: "Nilai kualitas audio",
+      badQuality: "Kualitas buruk? Rekam versi yang lebih baik:",
+      recordBetter: "Rekam ulang",
+    };
   }
   return {
-    helpImprove: 'Hilf uns, die App zu verbessern!',
-    recordNow: 'Aufnehmen',
-    recording: 'Aufnahme läuft...',
-    stop: 'Stopp',
-    thanks: 'Vielen Dank!',
-    rateAudio: 'Audioqualität bewerten',
-    badQuality: 'Schlechte Qualität? Bessere Version einsprechen:',
-    recordBetter: 'Neu aufnehmen'
-  }
-})
+    helpImprove: "Hilf uns, die App zu verbessern!",
+    recordNow: "Aufnehmen",
+    recording: "Aufnahme läuft...",
+    stop: "Stopp",
+    thanks: "Vielen Dank!",
+    rateAudio: "Audioqualität bewerten",
+    badQuality: "Schlechte Qualität? Bessere Version einsprechen:",
+    recordBetter: "Neu aufnehmen",
+  };
+});
 
 function checkAudioFromCache() {
-  const cached = getCachedAudio(props.vocabId, props.lang)
-  hasAudio.value = cached ? cached.exists : false
-  justUploaded.value = false
-  showReRecord.value = false
+  const cached = getCachedAudio(props.vocabId, props.lang);
+  hasAudio.value = cached ? cached.exists : false;
+  justUploaded.value = false;
+  showReRecord.value = false;
 }
 
 function playAudio() {
-  if (isPlaying.value) return
-  isPlaying.value = true
+  if (isPlaying.value) return;
+  isPlaying.value = true;
 
-  const cached = getCachedAudio(props.vocabId, props.lang)
+  const cached = getCachedAudio(props.vocabId, props.lang);
   if (!cached || !cached.blobUrl) {
-    isPlaying.value = false
-    return
+    isPlaying.value = false;
+    return;
   }
 
-  audioElement = new Audio(cached.blobUrl)
-  audioElement.onended = () => { isPlaying.value = false }
-  audioElement.onerror = () => { isPlaying.value = false }
-  audioElement.play().catch(() => { isPlaying.value = false })
+  audioElement = new Audio(cached.blobUrl);
+  audioElement.onended = () => {
+    isPlaying.value = false;
+  };
+  audioElement.onerror = () => {
+    isPlaying.value = false;
+  };
+  audioElement.play().catch(() => {
+    isPlaying.value = false;
+  });
 }
 
 async function startRecording() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' })
-    audioChunks = []
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+    audioChunks = [];
 
     mediaRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) audioChunks.push(e.data)
-    }
+      if (e.data.size > 0) audioChunks?.push(e.data);
+    };
 
     mediaRecorder.onstop = async () => {
-      stream.getTracks().forEach(t => t.stop())
-      stopWaveAnimation()
+      stream.getTracks().forEach((t) => t.stop());
+      stopWaveAnimation();
 
-      const blob = new Blob(audioChunks, { type: 'audio/webm' })
-      await uploadAudio(blob)
-    }
+      const blob = new Blob(audioChunks, { type: "audio/webm" });
+      await uploadAudio(blob);
+    };
 
-    mediaRecorder.start()
-    isRecording.value = true
-    showReRecord.value = false
+    mediaRecorder.start();
+    isRecording.value = true;
+    showReRecord.value = false;
 
     requestAnimationFrame(() => {
-      startWaveAnimation()
-    })
+      startWaveAnimation();
+    });
   } catch {
-    isRecording.value = false
+    isRecording.value = false;
   }
 }
 
 function stopRecording() {
-  if (mediaRecorder && mediaRecorder.state === 'recording') {
-    mediaRecorder.stop()
+  if (mediaRecorder && mediaRecorder.state === "recording") {
+    mediaRecorder.stop();
   }
-  isRecording.value = false
+  isRecording.value = false;
 }
 
-async function uploadAudio(blob) {
-  const formData = new FormData()
-  formData.append('audio', blob, `${props.vocabId}${props.lang}.webm`)
+async function uploadAudio(blob: Blob) {
+  const formData = new FormData();
+  formData.append("audio", blob, `${props.vocabId}${props.lang}.webm`);
 
   try {
     await api.post(`/api/audio/${props.vocabId}/${props.lang}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    })
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     // Refresh the cache with the newly uploaded audio
-    await refreshCachedAudio(props.vocabId, props.lang)
-    hasAudio.value = true
-    justUploaded.value = true
-    setTimeout(() => { justUploaded.value = false }, 3000)
+    await refreshCachedAudio(props.vocabId, props.lang);
+    hasAudio.value = true;
+    justUploaded.value = true;
+    setTimeout(() => {
+      justUploaded.value = false;
+    }, 3000);
   } catch (e) {
-    console.error('Upload failed:', e)
+    console.error("Upload failed:", e);
   }
 }
 
 function startWaveAnimation() {
-  const canvas = waveCanvas.value
-  if (!canvas) return
-  const ctx = canvas.getContext('2d')
+  const canvas = waveCanvas.value;
+  if (!canvas) return;
+  const ctx = canvas?.getContext("2d");
 
   function draw() {
-    const w = canvas.width
-    const h = canvas.height
-    ctx.clearRect(0, 0, w, h)
+    const w = canvas?.width;
+    const h = canvas?.height;
+    ctx.clearRect(0, 0, w, h);
 
-    ctx.strokeStyle = '#e74c3c'
-    ctx.lineWidth = 2
-    ctx.beginPath()
+    ctx.strokeStyle = "#e74c3c";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
 
     for (let x = 0; x < w; x++) {
-      const y = h / 2 + Math.sin((x + waveOffset) * 0.06) * (h / 3) *
-        (0.6 + 0.4 * Math.sin((x + waveOffset) * 0.02))
-      if (x === 0) ctx.moveTo(x, y)
-      else ctx.lineTo(x, y)
+      const y =
+        h / 2 +
+        Math.sin((x + waveOffset) * 0.06) *
+          (h / 3) *
+          (0.6 + 0.4 * Math.sin((x + waveOffset) * 0.02));
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
     }
 
-    ctx.stroke()
-    waveOffset += 2
-    animationId = requestAnimationFrame(draw)
+    ctx.stroke();
+    waveOffset += 2;
+    animationId = requestAnimationFrame(draw);
   }
 
-  draw()
+  draw();
 }
 
 function stopWaveAnimation() {
   if (animationId) {
-    cancelAnimationFrame(animationId)
-    animationId = null
+    cancelAnimationFrame(animationId);
+    animationId = null;
   }
 }
 
 // Read from cache when vocabId or lang changes
-watch(() => [props.vocabId, props.lang], () => {
-  checkAudioFromCache()
-  stopRecording()
-  stopWaveAnimation()
-  if (audioElement) {
-    audioElement.pause()
-    audioElement = null
-  }
-  isPlaying.value = false
-}, { immediate: true })
+watch(
+  () => [props.vocabId, props.lang],
+  () => {
+    checkAudioFromCache();
+    stopRecording();
+    stopWaveAnimation();
+    if (audioElement) {
+      audioElement.pause();
+      audioElement = null;
+    }
+    isPlaying.value = false;
+  },
+  { immediate: true },
+);
 
 onBeforeUnmount(() => {
-  stopRecording()
-  stopWaveAnimation()
+  stopRecording();
+  stopWaveAnimation();
   if (audioElement) {
-    audioElement.pause()
+    audioElement.pause();
   }
-})
+});
 </script>
 
 <style scoped>
@@ -279,8 +307,13 @@ onBeforeUnmount(() => {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .btn-rate-audio {
@@ -387,8 +420,13 @@ onBeforeUnmount(() => {
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.2; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
 }
 
 .wave-canvas {
