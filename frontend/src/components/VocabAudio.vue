@@ -6,7 +6,7 @@
       class="bg-blue-200 p-2"
       :disabled="isRecording"
     >
-      Aufnahme starten
+      <MicrophoneIcon class="h-5 w-5" />
     </button>
 
     <button
@@ -15,11 +15,14 @@
       :disabled="!isRecording"
       class="bg-blue-200 p-2"
     >
-      Aufnahme stoppen
+      <StopIcon class="h-5 w-5" />
     </button>
   </div>
 
-  <div v-if="isRecording" class="dot"></div>
+  <div v-if="isRecording" class="flex gap-2">
+    <div class="dot"></div>
+    Aufnahme läuft ...
+  </div>
 
   <div v-if="audioUrl">
     <p>Vorschau:</p>
@@ -37,6 +40,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { MicrophoneIcon, StopIcon } from "@heroicons/vue/24/outline";
 
 const isRecording = ref(false);
 const audioUrl = ref<string | null>(null);

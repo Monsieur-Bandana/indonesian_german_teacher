@@ -4,6 +4,7 @@ import VocabAudio from "../components/VocabAudio.vue";
 import { useRecordStore } from "../stores/recordStore";
 import { useUserStore } from "../stores/userStore";
 import { VocabForRecord } from "../models/Vocab";
+import { HeartIcon } from "@heroicons/vue/24/outline";
 
 const isRecorded = ref(false);
 const recordStore = useRecordStore();
@@ -23,10 +24,21 @@ function next() {
 </script>
 <template>
   <h1>Audio View</h1>
-  <p>Please read the following words or sentences and record.</p>
-  <p>
-    <span class="font-bold">{{ vocabs[index.valueOf()]?.frontside }}</span>
+  <p v-if="!isRecorded">
+    Please read the following words or sentences and record.
   </p>
-  <button v-if="isRecorded" @click="next">Next Record</button>
+  <p>
+    {{ isRecorded ? index + 1 : index }} of {{ vocabs.length }} vocabs recorded
+    today!
+  </p>
+  <p v-if="!isRecorded">
+    <span class="font-bold">{{ vocabs[index]?.frontside }}</span>
+  </p>
+  <div class="flex gap-2" v-if="isRecorded">
+    Therima Kasi for helping me!<HeartIcon class="w-5 h-5" />
+  </div>
+  <button v-if="isRecorded" @click="next" class="bg-blue-100 p-2">
+    Next Record
+  </button>
   <VocabAudio v-else @audiorecorded="isRecorded = true" />
 </template>
