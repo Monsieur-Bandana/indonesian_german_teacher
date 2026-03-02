@@ -3,6 +3,7 @@ import LoginView from "../views/LoginView.vue";
 import RegisterView from "../views/RegisterView.vue";
 import FlashCardView from "../views/FlashCardView.vue";
 import DashBoardView from "../views/DashBoardView.vue";
+import ContributeView from "../views/ContributeView.vue";
 
 const routes = [
   { path: "/", redirect: "/login" },
@@ -14,6 +15,12 @@ const routes = [
   },
   { path: "/login", name: "Login", component: LoginView },
   { path: "/register", name: "Register", component: RegisterView },
+  {
+    path: "/contribute",
+    name: "Contribute",
+    component: ContributeView,
+    meta: { requiresAuth: true },
+  },
   {
     path: "/learn",
     name: "Learn",

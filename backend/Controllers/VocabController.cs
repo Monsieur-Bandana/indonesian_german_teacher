@@ -103,6 +103,24 @@ public class VocabController : ControllerBase
         return Ok(vocabs);
     }
 
+    [HttpGet("recordVocabs/{lang}")]
+    public async Task<ActionResult<List<VocabRecordDto>>> GetVocabsForRecording(string lang)
+    {
+        var language = lang == "d" ? "in" : "d";
+        var newVocabsForRecord = await _db.Vocabs
+            .Where(v => v.Languagekey == language
+                && v.IsRecorded == 0)
+            .Take(15)
+            .Select(v => new VocabRecordDto
+            {
+                Id = v.Id,
+                Frontside = v.Backside
+            })
+            .ToListAsync();
+
+        return Ok(newVocabsForRecord);
+    }
+
     [HttpGet("new/{language}")]
     public async Task<ActionResult<List<VocabProgressDto>>> GetNew(string language)
     {

@@ -22,6 +22,7 @@ public class VocabEntry
 
     public int? hasCopyright { get; set; }
 
+    public int IsRecorded { get; set; } = 0;
 
     [NotMapped]
     public List<int> CategoryIds { get; set; }

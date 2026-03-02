@@ -42,6 +42,13 @@ public class VocabEntryDto
     //  public List<int> CategoryIds { get; set; } = new List<int>();
 }
 
+public class VocabRecordDto
+{
+    public int Id { get; set; }
+    public string Frontside { get; set; } = string.Empty;
+    //  public List<int> CategoryIds { get; set; } = new List<int>();
+}
+
 public class DashboardDto
 {
     public int TotalVocabs { get; set; }

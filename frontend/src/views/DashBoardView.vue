@@ -15,6 +15,7 @@ const dashboardData = ref<DashboardData>({
 });
 const router = useRouter();
 const userStore = useUserStore();
+const isLoading = ref(true);
 
 onMounted(async () => {
   const data = await vocabProgressService.getDashboardData(
@@ -22,12 +23,14 @@ onMounted(async () => {
     userStore.learningLanguage,
   );
   dashboardData.value = data;
+  isLoading.value = false;
 });
 </script>
 
 <template>
   <h1 class="text-2xl font-bold mb-2">Progress</h1>
-  <div class="flex justify-center">
+  <div v-if="isLoading">Loading...</div>
+  <div v-else class="flex justify-center">
     <div class="bg-blue-200 p-3">
       <h1>Noch nicht gelernt</h1>
       <p>{{ dashboardData.newVocabs }} Karten</p>
@@ -46,9 +49,14 @@ onMounted(async () => {
       <p>Davon fällig: {{ dashboardData.vocabsDueToday }}</p>
     </div>
   </div>
-  <button @click="router.push('/learn')" class="bg-blue-200 p-2 mt-4">
-    Start Now!
-  </button>
+  <div class="flex gap-3">
+    <button @click="router.push('/contribute')" class="bg-blue-200 p-2 mt-4">
+      Help Improving the App
+    </button>
+    <button @click="router.push('/learn')" class="bg-blue-200 p-2 mt-4">
+      Start Learning Now!
+    </button>
+  </div>
 </template>
 
 <style scoped>

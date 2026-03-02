@@ -11,6 +11,11 @@ export interface Flashcard {
   hasCopyright: number;
 }
 
+export interface VocabForRecord {
+  id: number;
+  frontside: string;
+}
+
 export interface VocabProgress {
   vocabId: number;
   interval: string;
