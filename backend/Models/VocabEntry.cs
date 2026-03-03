@@ -5,12 +5,12 @@ public class VocabEntry
 {
     public int Id { get; set; }
 
-    public string Frontside { get; set; }
+    public string Frontside { get; set; } = string.Empty;
 
     public string? FrontsideBeforeNote { get; set; }
 
     public string? FrontsideAfterNote { get; set; }
-    public string Backside { get; set; }
+    public string Backside { get; set; } = string.Empty;
 
     public string? BetweenLayer { get; set; }
 
@@ -18,11 +18,9 @@ public class VocabEntry
 
     public string? BacksideAfterNote { get; set; }
 
-    public string Languagekey { get; set; }
+    public string Languagekey { get; set; } = string.Empty;
 
     public int? hasCopyright { get; set; }
-
-    public int IsRecorded { get; set; } = 0;
 
     [NotMapped]
     public List<int> CategoryIds { get; set; }

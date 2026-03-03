@@ -12,7 +12,7 @@ public class AppDbContext : DbContext
 
     public DbSet<VocabEntry> Vocabs => Set<VocabEntry>();
 
-
+    public DbSet<Recording> Recordings => Set<Recording>();
     public DbSet<Category> Categories => Set<Category>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

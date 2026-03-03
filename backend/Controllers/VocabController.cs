@@ -109,7 +109,7 @@ public class VocabController : ControllerBase
         var language = lang == "d" ? "in" : "d";
         var newVocabsForRecord = await _db.Vocabs
             .Where(v => v.Languagekey == language
-                && v.IsRecorded == 0)
+                && !_db.Recordings.Any(r => r.EntryId == v.Id))
             .Take(15)
             .Select(v => new VocabRecordDto
             {

@@ -29,11 +29,7 @@
     <audio :src="audioUrl" controls></audio>
   </div>
 
-  <button
-    v-if="audioUrl"
-    class="bg-blue-200 p-2"
-    @click="emit('audiorecorded', audioUrl!)"
-  >
+  <button v-if="audioUrl" class="bg-blue-200 p-2" @click="onAccept()">
     Annehmen
   </button>
 </template>
@@ -41,12 +37,20 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { MicrophoneIcon, StopIcon } from "@heroicons/vue/24/outline";
+import { recordService } from "../services/recordService";
+
+const props = defineProps({
+  vocId: Number,
+  authorId: Number,
+});
 
 const isRecording = ref(false);
 const audioUrl = ref<string | null>(null);
 
 const mediaRecorder = ref<MediaRecorder | null>(null);
 const audioChunks = ref<Blob[]>([]);
+
+const audioBlob = ref<Blob>(new Blob());
 
 const emit = defineEmits<{
   (e: "audiorecorded", audioUrl: string): void;
@@ -63,8 +67,8 @@ async function startRecording() {
   };
 
   mediaRecorder.value.onstop = () => {
-    const audioBlob = new Blob(audioChunks.value, { type: "audio/webm" });
-    audioUrl.value = URL.createObjectURL(audioBlob);
+    audioBlob.value = new Blob(audioChunks.value, { type: "audio/webm" });
+    audioUrl.value = URL.createObjectURL(audioBlob.value);
   };
 
   mediaRecorder.value.start();
@@ -74,6 +78,11 @@ async function startRecording() {
 function stopRecording() {
   mediaRecorder.value!.stop();
   isRecording.value = false;
+}
+
+async function onAccept() {
+  await recordService.post(props.vocId!, props.authorId!, audioBlob.value);
+  emit("audiorecorded", audioUrl.value!);
 }
 </script>
 

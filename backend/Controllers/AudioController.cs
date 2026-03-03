@@ -1,3 +1,5 @@
+using Backend.Data;
+using Backend.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
@@ -7,13 +9,16 @@ namespace Backend.Controllers;
 public class AudioController : ControllerBase
 {
     private readonly string _audioDir;
+    private readonly AppDbContext _db;
 
-    public AudioController(IWebHostEnvironment env)
+    public AudioController(IWebHostEnvironment env, AppDbContext db)
     {
         _audioDir = Path.Combine(env.ContentRootPath, "AudioFiles");
+        _db = db;
         if (!Directory.Exists(_audioDir))
         {
             Directory.CreateDirectory(_audioDir);
+
         }
     }
 
@@ -40,14 +45,9 @@ public class AudioController : ControllerBase
     /// GET /api/audio/{vocabId}/{lang}
     /// Stream the audio file for playback.
     /// </summary>
-    [HttpGet("{vocabId}/{lang}")]
+    [HttpGet("{vocabId}")]
     public ActionResult GetAudio(int vocabId, string lang)
     {
-        if (lang != "d" && lang != "i")
-        {
-            return BadRequest(new { message = "Sprache muss 'd' oder 'i' sein / Bahasa harus 'd' atau 'i'" });
-        }
-
         var fileName = $"{vocabId}{lang}.webm";
         var filePath = Path.Combine(_audioDir, fileName);
 
@@ -65,13 +65,9 @@ public class AudioController : ControllerBase
     /// Upload a new audio recording. Accepts multipart/form-data with an "audio" file field.
     /// Overwrites any existing file (for quality improvement).
     /// </summary>
-    [HttpPost("{vocabId}/{lang}")]
-    public async Task<ActionResult> UploadAudio(int vocabId, string lang, IFormFile audio)
+    [HttpPost("{vocabId}/{authorId}")]
+    public async Task<ActionResult> UploadAudio(int vocabId, int authorId, IFormFile audio)
     {
-        if (lang != "d" && lang != "i")
-        {
-            return BadRequest(new { message = "Sprache muss 'd' oder 'i' sein / Bahasa harus 'd' atau 'i'" });
-        }
 
         if (audio == null || audio.Length == 0)
         {
@@ -84,11 +80,20 @@ public class AudioController : ControllerBase
             return BadRequest(new { message = "Datei zu groß (max 5MB) / File terlalu besar (maks 5MB)" });
         }
 
-        var fileName = $"{vocabId}{lang}.webm";
+        var fileName = $"{vocabId}.webm";
         var filePath = Path.Combine(_audioDir, fileName);
 
         using var stream = new FileStream(filePath, FileMode.Create);
         await audio.CopyToAsync(stream);
+
+        _db.Recordings.Add(new Recording
+        {
+            EntryId = vocabId,
+
+            AuthorId = authorId
+        });
+
+        await _db.SaveChangesAsync();
 
         return Ok(new { message = "Audio gespeichert / Audio disimpan", fileName });
     }
