@@ -31,3 +31,8 @@ export interface DashboardData {
   orangeVocabs: number;
   greenVocabs: number;
 }
+
+export interface Recording {
+  audioFile: Blob;
+  id: number;
+}

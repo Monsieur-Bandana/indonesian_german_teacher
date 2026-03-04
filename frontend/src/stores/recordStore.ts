@@ -2,7 +2,8 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { vocabService } from "../services/vocabService";
-import type { Flashcard, VocabForRecord, VocabProgress } from "../models/Vocab";
+import type { Flashcard, VocabForRecord, Recording } from "../models/Vocab";
+import { recordService } from "../services/recordService";
 
 export const useRecordStore = defineStore("vocab", () => {
   const recordVocabs = ref<VocabForRecord[]>([]);
@@ -13,13 +14,35 @@ export const useRecordStore = defineStore("vocab", () => {
     recordVocabs.value = data;
   }
 
-  async function safeRecorded(language: string, id: number) {
-    recordedIds.value.push(id);
-  }
-
   return {
     recordVocabs,
     fetchVocabsForRecord,
     recordedIds,
   };
+});
+
+export const useRecordLibrary = defineStore("records", () => {
+  const records = ref<Recording[]>([]);
+
+  async function fetchVocabsForRecord(vocabs: Flashcard[]) {
+    const recordings = await Promise.all(
+      vocabs.map(async (v) => {
+        const blob = await recordService.get(v.id);
+
+        if (!blob) return null;
+
+        const recording: Recording = {
+          audioFile: blob,
+          id: v.id,
+        };
+
+        return recording;
+      }),
+    );
+
+    // null rausfiltern
+    records.value = recordings.filter((r): r is Recording => r !== null);
+  }
+
+  return { records, fetchVocabsForRecord };
 });

@@ -17,4 +17,16 @@ export const recordService = {
       throw e;
     }
   },
+
+  async get(id: number): Promise<Blob | null> {
+    try {
+      const audioRes = await api.get(`/api/audio/${id}`, {
+        responseType: "blob",
+      });
+      return audioRes.data;
+    } catch (error) {
+      console.error("Error fetching customer photo:", error);
+      return null;
+    }
+  },
 };

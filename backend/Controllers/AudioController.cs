@@ -46,9 +46,9 @@ public class AudioController : ControllerBase
     /// Stream the audio file for playback.
     /// </summary>
     [HttpGet("{vocabId}")]
-    public ActionResult GetAudio(int vocabId, string lang)
+    public ActionResult GetAudio(int vocabId)
     {
-        var fileName = $"{vocabId}{lang}.webm";
+        var fileName = $"{vocabId}.webm";
         var filePath = Path.Combine(_audioDir, fileName);
 
         if (!System.IO.File.Exists(filePath))

@@ -4,14 +4,24 @@ import { useVocabStore } from "../stores/vocabStore";
 import { Flashcard } from "../models/Vocab";
 import { useUserStore } from "../stores/userStore";
 import { vocabProgressService } from "../services/vocabProgressService";
+import { useRecordLibrary } from "../stores/recordStore";
 
 const vocabStore = useVocabStore();
+const recordStore = useRecordLibrary();
 const isFrontside = ref(true);
 const vocabIndex = ref(0);
 const learningCards = ref<Flashcard[]>([]);
 const learingLanguage = ref<string>("");
 const userStore = useUserStore();
 const loading = ref(true);
+const demovocab = computed(() => learningCards.value[vocabIndex.value]);
+const audioUrl = computed(() => {
+  const record = recordStore.records.find(
+    (element) => element.id === demovocab.value.id,
+  );
+
+  return record ? URL.createObjectURL(record.audioFile) : "";
+});
 
 onMounted(async () => {
   learingLanguage.value = userStore.learningLanguage;
@@ -21,6 +31,8 @@ onMounted(async () => {
   );
   await vocabStore.fetchProgress(userStore.userId as any as number);
   learningCards.value = vocabStore.vocabs;
+  await recordStore.fetchVocabsForRecord(learningCards.value); // .slice(0, 5)
+
   loading.value = false;
 });
 
@@ -36,8 +48,6 @@ async function saveProgressToDb() {
   );
   loading.value = false;
 }
-
-const demovocab = computed(() => learningCards.value[vocabIndex.value]);
 
 const next = async (interval: string) => {
   isFrontside.value = true;
@@ -106,6 +116,7 @@ const next = async (interval: string) => {
           <span class="font-bold">{{ demovocab.backside }}</span>
         </p>
         <p>{{ demovocab.backsideAfterNote }}</p>
+        <audio v-if="audioUrl" :src="audioUrl" controls></audio>
       </div>
     </div>
 
