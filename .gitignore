@@ -21,3 +21,10 @@ obj/
 # OS
 .DS_Store
 Thumbs.db
+
+# ssh
+keys
+keys.pub
+
+# deployment
+*.tar

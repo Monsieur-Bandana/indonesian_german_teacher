@@ -1,6 +1,7 @@
 <template>
   <div class="auth-container">
     <h1>🇮🇩 🇩🇪</h1>
+    <h1>Bahasä</h1>
     <h2>{{ title }}</h2>
     <form @submit.prevent="handleLogin">
       <div class="form-group">
