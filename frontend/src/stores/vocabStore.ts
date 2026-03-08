@@ -44,7 +44,9 @@ export const useVocabStore = defineStore("vocab", () => {
           learningSession.value[i].interval === "green" &&
           progress.interval === "green"
         ) {
-          learningSession.value[i].greenStreak++;
+          learningSession.value[i].greenStreak === 0
+            ? learningSession.value[i].greenStreak++
+            : (learningSession.value[i].greenStreak *= 2);
           progress.greenStreak = learningSession.value[i].greenStreak;
         }
       }
