@@ -22,7 +22,5 @@ public class VocabEntry
 
     public int? hasCopyright { get; set; }
 
-    [NotMapped]
-    public List<int> CategoryIds { get; set; }
 
 }

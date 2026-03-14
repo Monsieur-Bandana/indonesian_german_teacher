@@ -38,7 +38,7 @@ public class UserController : ControllerBase
         var user = new User
         {
             Username = request.Username,
-            //  PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
             LearningLanguage = request.LearningLanguage
         };
 
@@ -53,11 +53,53 @@ public class UserController : ControllerBase
         });
     }
 
+    [HttpPost("update")]
+    public async Task<ActionResult<UserResponse>> Update([FromBody] ChangeRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Username))
+        {
+            return BadRequest(new { message = "Benutzername und Passwort sind erforderlich / Username dan kata sandi diperlukan" });
+        }
+        if (request.Id == 0)
+        {
+            return BadRequest(new { message = "Nutzer ist nicht hinterlegt" });
+        }
+
+        if (request.LearningLanguage != "d" && request.LearningLanguage != "in")
+        {
+            return BadRequest(new { message = "Ungültige Sprache / Bahasa tidak valid" });
+        }
+
+        var exists = await _db.Users.AnyAsync(u => u.Username == request.Username);
+        if (exists)
+        {
+            return Conflict(new { message = "Benutzername bereits vergeben / Nama pengguna sudah digunakan" });
+        }
+
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == request.Id);
+
+        if (user == null)
+            throw new Exception("User not found");
+
+        user.Username = request.Username;
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        user.LearningLanguage = request.LearningLanguage;
+
+        await _db.SaveChangesAsync();
+
+        return Ok(new UserResponse
+        {
+            Id = user.Id,
+            Username = user.Username,
+            LearningLanguage = user.LearningLanguage
+        });
+    }
+
     [HttpPost("login")]
     public async Task<ActionResult<UserResponse>> Login([FromBody] LoginRequest request)
     {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
-        if (user == null /* || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash)*/)
+        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
             return Unauthorized(new { message = "Ungültige Anmeldedaten / Kredensial tidak valid" });
         }

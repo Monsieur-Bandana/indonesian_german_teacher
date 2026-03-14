@@ -14,25 +14,21 @@
           :placeholder="labels.usernamePlaceholder"
         />
       </div>
-      <!--
-        <div class="form-group">
-          <label for="password">{{ labels.password }}</label>
-          <input
+
+      <div class="form-group">
+        <label for="password">{{ labels.password }}</label>
+        <input
           id="password"
           v-model="password"
           type="password"
           required
           :placeholder="labels.passwordPlaceholder"
-          />
-        </div>
-        -->
+        />
+      </div>
+
       <p v-if="error" class="error">{{ error }}</p>
       <button type="submit" class="btn-primary">{{ labels.login }}</button>
     </form>
-    <p class="switch-link">
-      {{ labels.noAccount }}
-      <router-link to="/register">{{ labels.register }}</router-link>
-    </p>
   </div>
 </template>
 
@@ -56,7 +52,7 @@ const labels = {
   passwordPlaceholder: "Passwort eingeben",
   login: "Anmelden / Masuk",
   noAccount: "Noch kein Konto? / Belum punya akun?",
-  register: "Registrieren / Daftar",
+  register: "Passwort ändern / Daftar",
 };
 
 async function handleLogin() {

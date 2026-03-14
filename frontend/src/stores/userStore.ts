@@ -37,6 +37,27 @@ export const useUserStore = defineStore("user", () => {
     return user;
   }
 
+  async function update(
+    id: number,
+    name: string,
+    language: string,
+    password: string,
+  ) {
+    const response = await api.post("/api/user/update", {
+      id: id,
+      username: name,
+      password: password,
+      learningLanguage: language,
+    });
+    const user = response.data;
+    userId.value = user.id;
+    username.value = user.username;
+    learningLanguage.value = user.learningLanguage;
+    localStorage.setItem("username", user.username);
+    localStorage.setItem("learningLanguage", user.learningLanguage);
+    return user;
+  }
+
   function logout() {
     userId.value = null;
     username.value = "";
@@ -63,5 +84,6 @@ export const useUserStore = defineStore("user", () => {
     logout,
     isLearningGerman,
     isLearningIndonesian,
+    update,
   };
 });

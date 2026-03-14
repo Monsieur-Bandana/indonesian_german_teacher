@@ -28,6 +28,12 @@ onMounted(async () => {
 </script>
 
 <template>
+  <h1 class="text-2xl font-bold mb-2">Halo cantik {{ userStore.username }}!</h1>
+
+  <router-link to="/changePassword" class="bg-blue-200 p-2 mt-4"
+    >Edit Account</router-link
+  >
+
   <h1 class="text-2xl font-bold mb-2">Progress</h1>
   <div v-if="isLoading">Loading...</div>
   <div v-else class="flex justify-center">
