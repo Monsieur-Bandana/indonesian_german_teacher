@@ -21,7 +21,7 @@ export const useUserStore = defineStore("user", () => {
     return user;
   }
 
-  async function register(name: string, language: string) {
+  async function register(name: string, password: string, language: string) {
     const response = await api.post("/api/user/register", {
       username: name,
       //  password: password,
@@ -33,6 +33,7 @@ export const useUserStore = defineStore("user", () => {
     learningLanguage.value = user.learningLanguage;
     localStorage.setItem("userId", user.id);
     localStorage.setItem("username", user.username);
+    localStorage.setItem("password", password);
     localStorage.setItem("learningLanguage", user.learningLanguage);
     return user;
   }

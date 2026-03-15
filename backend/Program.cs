@@ -10,9 +10,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("frontend", policy =>
     {
         policy.WithOrigins("http://localhost:3000")
+            .AllowCredentials()
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -28,7 +29,7 @@ using (var scope = app.Services.CreateScope())
     JsonExtractor.Import(db);
 }
 
-app.UseCors();
+app.UseCors("frontend");
 app.MapControllers();
 
 app.Run();

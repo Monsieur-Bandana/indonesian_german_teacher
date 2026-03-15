@@ -28,6 +28,9 @@
 
       <p v-if="error" class="error">{{ error }}</p>
       <button type="submit" class="btn-primary">{{ labels.login }}</button>
+      <router-link to="/register" class="bg-blue-200 p-2 mt-4"
+        >Register</router-link
+      >
     </form>
   </div>
 </template>

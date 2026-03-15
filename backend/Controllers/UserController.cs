@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Backend.Controllers;
 
@@ -95,6 +97,24 @@ public class UserController : ControllerBase
         });
     }
 
+    public static string GenerateSessionToken()
+    {
+        var bytes = new byte[32]; // 256 bit
+        RandomNumberGenerator.Fill(bytes);
+
+        return Convert.ToBase64String(bytes)
+     .Replace("+", "-")
+     .Replace("/", "_")
+     .Replace("=", "");
+    }
+
+    public static string HashToken(string token)
+    {
+        using var sha = SHA256.Create();
+        var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(token));
+        return Convert.ToHexString(bytes);
+    }
+
     [HttpPost("login")]
     public async Task<ActionResult<UserResponse>> Login([FromBody] LoginRequest request)
     {
@@ -103,6 +123,28 @@ public class UserController : ControllerBase
         {
             return Unauthorized(new { message = "Ungültige Anmeldedaten / Kredensial tidak valid" });
         }
+
+        var sessionToken = GenerateSessionToken();
+        var sessionTokenHash = HashToken(sessionToken);
+
+        var session = new Session
+        {
+            UserId = user.Id,
+            SessionTokenHash = sessionTokenHash,
+            CreatedAt = DateOnly.FromDateTime(DateTime.UtcNow),
+            ExpiredAt = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7))
+        };
+
+        await _db.Sessions.AddAsync(session);
+        await _db.SaveChangesAsync();
+
+        Response.Cookies.Append("sid", sessionToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
 
         return Ok(new UserResponse
         {

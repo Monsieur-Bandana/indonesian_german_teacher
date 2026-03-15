@@ -8,6 +8,8 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<User> Users => Set<User>();
+
+    public DbSet<Session> Sessions => Set<Session>();
     public DbSet<VocabProgress> VocabProgress => Set<VocabProgress>();
 
     public DbSet<VocabEntry> Vocabs => Set<VocabEntry>();
@@ -36,7 +38,7 @@ public class AppDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Username).IsUnique();
             entity.Property(e => e.Username).IsRequired().HasMaxLength(100);
-            //  entity.Property(e => e.PasswordHash).IsRequired();
+            entity.Property(e => e.PasswordHash).IsRequired();
             entity.Property(e => e.LearningLanguage).IsRequired().HasMaxLength(20);
         });
 

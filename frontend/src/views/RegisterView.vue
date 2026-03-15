@@ -15,6 +15,27 @@
       </div>
 
       <div class="form-group">
+        <label for="password">{{ labels.password }}</label>
+        <input
+          id="password"
+          v-model="password"
+          type="password"
+          required
+          :placeholder="labels.passwordPlaceholder"
+        />
+      </div>
+      <div class="form-group">
+        <label for="password">{{ labels.password }}</label>
+        <input
+          id="password"
+          v-model="password2"
+          type="password"
+          required
+          :placeholder="labels.passwordPlaceholder + ' repeat'"
+        />
+      </div>
+
+      <div class="form-group">
         <label>{{ labels.languageQuestion }}</label>
         <div class="language-options">
           <button
@@ -54,6 +75,8 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "../stores/userStore";
 import { OperationCanceledException } from "typescript";
+const password = ref("");
+const password2 = ref("");
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -76,13 +99,17 @@ const labels = {
 
 async function handleRegister() {
   error.value = "";
+  if (password.value != password2.value) {
+    error.value = "Password tidak sama sama";
+    return;
+  }
   if (!language.value) {
     error.value = "Bitte wähle eine Sprache / Silakan pilih bahasa";
     return;
   }
   try {
-    await userStore.register(username.value, language.value);
-    router.push("/dashboard");
+    await userStore.register(username.value, password.value, language.value);
+    router.push("/login");
   } catch (e: any) {
     error.value =
       e.response?.data?.message ||
