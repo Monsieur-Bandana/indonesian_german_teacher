@@ -18,43 +18,44 @@ public class UserController : ControllerBase
         _db = db;
     }
 
-    [HttpPost("register")]
-    public async Task<ActionResult<UserResponse>> Register([FromBody] RegisterRequest request)
-    {
-        if (string.IsNullOrWhiteSpace(request.Username))
+    /*
+        [HttpPost("register")]
+        public async Task<ActionResult<UserResponse>> Register([FromBody] RegisterRequest request)
         {
-            return BadRequest(new { message = "Benutzername und Passwort sind erforderlich / Username dan kata sandi diperlukan" });
+            if (string.IsNullOrWhiteSpace(request.Username))
+            {
+                return BadRequest(new { message = "Benutzername und Passwort sind erforderlich / Username dan kata sandi diperlukan" });
+            }
+
+            if (request.LearningLanguage != "d" && request.LearningLanguage != "in")
+            {
+                return BadRequest(new { message = "Ungültige Sprache / Bahasa tidak valid" });
+            }
+
+            var exists = await _db.Users.AnyAsync(u => u.Username == request.Username);
+            if (exists)
+            {
+                return Conflict(new { message = "Benutzername bereits vergeben / Nama pengguna sudah digunakan" });
+            }
+
+            var user = new User
+            {
+                Username = request.Username,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                LearningLanguage = request.LearningLanguage
+            };
+
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+
+            return Ok(new UserResponse
+            {
+                Id = user.Id,
+                Username = user.Username,
+                LearningLanguage = user.LearningLanguage
+            });
         }
-
-        if (request.LearningLanguage != "d" && request.LearningLanguage != "in")
-        {
-            return BadRequest(new { message = "Ungültige Sprache / Bahasa tidak valid" });
-        }
-
-        var exists = await _db.Users.AnyAsync(u => u.Username == request.Username);
-        if (exists)
-        {
-            return Conflict(new { message = "Benutzername bereits vergeben / Nama pengguna sudah digunakan" });
-        }
-
-        var user = new User
-        {
-            Username = request.Username,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            LearningLanguage = request.LearningLanguage
-        };
-
-        _db.Users.Add(user);
-        await _db.SaveChangesAsync();
-
-        return Ok(new UserResponse
-        {
-            Id = user.Id,
-            Username = user.Username,
-            LearningLanguage = user.LearningLanguage
-        });
-    }
-
+    */
     [HttpPost("update")]
     public async Task<ActionResult<UserResponse>> Update([FromBody] ChangeRequest request)
     {
