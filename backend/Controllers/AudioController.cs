@@ -11,9 +11,10 @@ public class AudioController : ControllerBase
     private readonly string _audioDir;
     private readonly AppDbContext _db;
 
-    public AudioController(IWebHostEnvironment env, AppDbContext db)
+    public AudioController(IConfiguration config, AppDbContext db)
     {
-        _audioDir = Path.Combine(env.ContentRootPath, "AudioFiles");
+
+        _audioDir = config["Storage:AudioFiles"];
         _db = db;
         if (!Directory.Exists(_audioDir))
         {

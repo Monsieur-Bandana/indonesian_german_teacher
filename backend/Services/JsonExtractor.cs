@@ -6,9 +6,10 @@ namespace Backend.Services;
 
 public static class JsonExtractor
 {
-    public static void Import(AppDbContext _db)
+    public static void Import(AppDbContext _db, IConfiguration config)
     {
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "vocabularies.json");
+        var _uploadPath = config["Storage:VocData"];
+        var path = Path.Combine(_uploadPath!, "vocabularies.json");
         string jsonString = File.ReadAllText(path);
         var jArray = JArray.Parse(jsonString);
         foreach (JObject item in jArray)

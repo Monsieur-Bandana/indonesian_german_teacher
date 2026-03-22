@@ -25,8 +25,8 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
-    JsonExtractor.Import(db);
+    db.Database.Migrate();
+    JsonExtractor.Import(db, builder.Configuration);
 }
 
 app.UseCors("frontend");

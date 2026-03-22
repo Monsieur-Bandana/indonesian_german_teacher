@@ -5,5 +5,7 @@ db-files
 *.db-shm
 *.db-wal
 
+# data
 /AudioFiles
 /Migrations
+vocabularies.json
